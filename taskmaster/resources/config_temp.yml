@@ -1,21 +1,25 @@
-conn:
+connection:
   url: 127.0.0.1:9001
-  username: xbluecode
-  password: '123456789'
 
 server:
+  host: '127.0.0.1'
+  port: 2424
   logfile: /tmp/tm_01.log
-  loglevel: info
+  loglevel: 'debug'
   pidfile: /tmp/tm.pid
   umask: 022
   user: xblueadmin
+  clients:
+    xbluecode: '1234'
+    xblack: 'xxxxxx'
+    xgreycode: '5678'
 
 client:
   prompt: 'tmaster $'
-  host: 127.0.0.1
-  port: 9001
+  host: '127.0.0.1'
+  port: 2424
   username: xbluecode
-  password: '123456789'
+  password: '1234'
 
 programs:
   - printargs:

@@ -16,6 +16,16 @@ client_attr = {
     'password': str
 }
 
+server_attr = {
+    'host': (str, '127.0.0.1'),
+    'port': (int, 4321),
+    'logfile': (str, '.tm_log'),
+    'loglevel': (str, 'info'),
+    'pidfile': (str, '.pidfile'),
+    'umask': (str, '00777'),
+    'clients': (dict, {})
+}
+
 
 class Config:
     """\
@@ -29,6 +39,7 @@ class Config:
         if self.data is None:
             logger_std.error('Failed to load config file')
             self.valid = False
+            return
         self.valid = self.parse_sections(section_base)
         if not self.valid:
             return
@@ -68,6 +79,14 @@ class Config:
 class ConfigServer(Config):
     def __init__(self, filepath):
         super().__init__(filepath)
+        self.host = None
+        self.port = None
+        self.server = None
+        self.logfile = None
+        self.loglevel = None
+        self.pidfile = None
+        self.umask = None
+        self.clients = {}
         if not self.valid:
             logger_std.error('failed to create a valid Server Config')
             return
@@ -75,11 +94,25 @@ class ConfigServer(Config):
         if not self.valid:
             logger_std.error('failed to create a valid Server Config')
             return
+        for sattr, tdef in server_attr.items():
+            val = self.server.get(sattr)
+            # setattr(self, sattr, check_type(val, tdef[0], tdef[1]))
+            if val and type(val) == tdef[0]:
+                setattr(self, sattr, val)
+            else:
+                 setattr(self, sattr, tdef[1])
+
+def check_type(val, t:type, def_val):
+    if val and isinstance(val, t):
+        return val
+    else:
+        return def_val
 
 
 class ConfigClient(Config):
     def __init__(self, filepath):
         super().__init__(filepath)
+        self.client = None
         self.prompt = None
         self.host = None
         self.port = None
@@ -92,7 +125,7 @@ class ConfigClient(Config):
         if not self.valid:
             logger_std.error('failed to create a valid Client Config')
             return
-        for cattr, ctype in client_attr:
+        for cattr, ctype in client_attr.items():
             val = self.client.get(cattr)
             if val and isinstance(val, ctype):
                 setattr(self, cattr, val)
